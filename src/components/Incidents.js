@@ -39,7 +39,7 @@ const Incidents = (props) => {
   }
 
   return (
-    <div>
+    <div style={{ padding: 20 }}>
       <Filters
         onFilterChanged={handleFilterChange}
         incidentSources={incidentSources}
@@ -104,11 +104,12 @@ const Incidents = (props) => {
 const Filters = (props) => {
   const { onFilterChanged, incidentSources } = props;
   return (
-    <div style={{ display: "flex" }}>
-      <span>Filters: </span>
+    <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
+      <span style={{ marginRight: 10 }}>Filters: </span>
       <Select
         style={{ width: 200 }}
         mode="multiple"
+        placeholder="Select Type"
         onChange={(selection) => {
           console.log(selection);
           onFilterChanged("source", selection);
