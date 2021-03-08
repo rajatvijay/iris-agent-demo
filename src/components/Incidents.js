@@ -1,6 +1,10 @@
 import React, { useMemo, useState } from "react";
-import { Select, Table } from "antd";
+import { Select, Table, DatePicker } from "antd";
 import { useIncidentsData } from "../dataHooks/useIncidents";
+import moment from "moment";
+import { FilterLayout } from "./FilterLayout";
+
+const { RangePicker } = DatePicker;
 
 const Incidents = (props) => {
   const { status, incidents, error } = useIncidentsData();
@@ -27,6 +31,20 @@ const Incidents = (props) => {
         if (name === "source") {
           const value = filters[name];
           return value.length ? value.includes(incident.source) : true;
+        } else if (name === "createdAt") {
+          const value = filters[name];
+          const incidentTimestamp = +moment(incident.createdAt);
+
+          // When the filter is not selected
+          if (!value || !value.length) {
+            return incident;
+          }
+
+          const [startTime, endTime] = value;
+          // console.log(name, value, incidentTimestamp, +startTime, +endTime);
+          return (
+            incidentTimestamp >= +startTime && incidentTimestamp <= +endTime
+          );
         } else {
           // TODO: More filters
           return false;
@@ -47,7 +65,10 @@ const Incidents = (props) => {
       <Table
         loading={status === "loading"}
         dataSource={filteredIncidents}
-        pagination={false}
+        pagination={{
+          pageSize: 4,
+          total: filteredIncidents.length,
+        }}
         columns={[
           {
             title: "Type",
@@ -103,22 +124,30 @@ const Incidents = (props) => {
 // TODO: Move it into a diff file later
 const Filters = (props) => {
   const { onFilterChanged, incidentSources } = props;
+  const handleDateChange = (dates) => {
+    onFilterChanged("createdAt", dates);
+  };
   return (
     <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
       <span style={{ marginRight: 10 }}>Filters: </span>
-      <Select
-        style={{ width: 200 }}
-        mode="multiple"
-        placeholder="Select Type"
-        onChange={(selection) => {
-          console.log(selection);
-          onFilterChanged("source", selection);
-        }}
-      >
-        {incidentSources.map((source) => (
-          <Select.Option value={source}>{source}</Select.Option>
-        ))}
-      </Select>
+      <FilterLayout label="Source">
+        <Select
+          style={{ width: 200 }}
+          mode="multiple"
+          placeholder="Select Type"
+          onChange={(selection) => {
+            console.log(selection);
+            onFilterChanged("source", selection);
+          }}
+        >
+          {incidentSources.map((source) => (
+            <Select.Option value={source}>{source}</Select.Option>
+          ))}
+        </Select>
+      </FilterLayout>
+      <FilterLayout label="Created At">
+        <RangePicker onChange={handleDateChange} />
+      </FilterLayout>
     </div>
   );
 };

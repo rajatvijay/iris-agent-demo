@@ -1,0 +1,10 @@
+.root {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  margin-left: 10px;
+}
+
+.label {
+  font-size: 10px;
+}
